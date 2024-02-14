@@ -85,14 +85,16 @@ class Navbar extends HTMLElement {
       const submitButton = this.shadowRoot.querySelector("button");
       
       submitButton.addEventListener("click", () => {
-        this.handleSearch(input.value, userInput.handleSearch);
+        const searchEvent = new CustomEvent("search", { detail: input.value });
+        this.shadowRoot.dispatchEvent(searchEvent); // Dispatch the custom event
       });
 
       // Listen for keydown event on input field
       input.addEventListener("keydown", (event) => {
         // Check if the key pressed is Enter key
         if (event.keyCode === 13) {
-          this.handleSearch(input.value, userInput.handleSearch);
+          const searchEvent = new CustomEvent("search", { detail: input.value });
+          this.shadowRoot.dispatchEvent(searchEvent); // Dispatch the custom event
         }
       });
     } else {
@@ -100,15 +102,14 @@ class Navbar extends HTMLElement {
       searchInputDiv.style.display = "none";
     }
 
-    // document.addEventListener("search", (event) => {
-    //   this.handleSearch(event.detail, userInput.handleSearch);
-    // });
+    this.shadowRoot.addEventListener("search", (event) => {
+      this.handleSearch(event.detail, userInput.handleSearch);
+    });
   }
 
   // Function to handle search
   handleSearch(inputValue, handleSearchFunction) {
-    const searchEvent = new CustomEvent("search", { detail: inputValue });
-    document.dispatchEvent(searchEvent); // Dispatch the custom event
+    console.log(inputValue);
     if (
       handleSearchFunction &&
       window[handleSearchFunction] &&
