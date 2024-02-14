@@ -1,4 +1,4 @@
-const navbar = document.createElement('template');
+const navbar = document.createElement("template");
 navbar.innerHTML = `
 <style>
   header {
@@ -14,14 +14,14 @@ navbar.innerHTML = `
   .logo {
     color: #333333;
     font-family: 'Arial Black', Gadget, sans-serif;
-    font-size: 40px;
+    font-size: 38px;
     text-align: center;
     margin-left: 5px;
   }
   nav {
     margin: auto;
   }
-  form {
+  searchInput {
     display: inline-flex;
     border: 1px solid #616364;
     margin: 20px;
@@ -48,7 +48,10 @@ navbar.innerHTML = `
     <slot name="brand" class="logo"></slot>
   </div>
   <nav>
-    <slot></slot>
+  <div class="searchInput">
+    <input type="text"/>
+    <button>Go</button>
+  </div>
   </nav>
 </header>
 `;
@@ -56,56 +59,128 @@ navbar.innerHTML = `
 class Navbar extends HTMLElement {
   constructor() {
     super();
-    this.attachShadow({ mode: 'open' });
+    this.attachShadow({ mode: "open" });
     this.shadowRoot.appendChild(navbar.content.cloneNode(true));
   }
 
   connectedCallback() {
     const userInput = {
-      title: this.getAttribute('title'),
-      showSearchBar: this.getAttribute('showSearchBar'),
-      searchPlaceholder: this.getAttribute('searchPlaceholder'),
-      handleSearch: this.getAttribute('handle-search'),
+      title: this.getAttribute("title"),
+      showSearchBar: this.getAttribute("showSearchBar"),
+      searchPlaceholder: this.getAttribute("searchPlaceholder"),
+      handleSearch: this.getAttribute("handle-search"),
     };
 
-    const brandSlot = this.shadowRoot.querySelector('.logo');
+    const brandSlot = this.shadowRoot.querySelector(".logo");
     const titleTextNode = document.createTextNode(userInput.title);
     brandSlot.appendChild(titleTextNode);
 
-    if (userInput.showSearchBar === 'true') {
-      const navSlot = this.shadowRoot.querySelector('nav');
-      const form = document.createElement('form');
-      const input = document.createElement('input');
-      input.setAttribute('type', 'text');
-      input.setAttribute('placeholder', userInput.searchPlaceholder || 'Default Placeholder');
-      const submitButton = document.createElement('button');
-      submitButton.setAttribute('type', 'submit');
-      submitButton.textContent = 'GO';
-      form.appendChild(input);
-      form.appendChild(submitButton);
-      navSlot.appendChild(form);
+    const searchInputDiv = this.shadowRoot.querySelector(".searchInput");
+    if (userInput.showSearchBar === "true") {
+      const input = this.shadowRoot.querySelector("input");
+      input.setAttribute(
+        "placeholder",
+        userInput.searchPlaceholder || "Default Placeholder"
+      );
+      const submitButton = this.shadowRoot.querySelector("button");
+      
+      submitButton.addEventListener("click", () => {
+        this.handleSearch(input.value, userInput.handleSearch);
+      });
 
-      form.addEventListener('submit', (event) => {
-        event.preventDefault();
-        const inputValue = input.value;
-        const searchEvent = new CustomEvent('search', { detail: inputValue });
-        document.dispatchEvent(searchEvent); // Dispatch the custom event
-        if (userInput.handleSearch && window[userInput.handleSearch] && typeof window[userInput.handleSearch] === 'function') {
-            window[userInput.handleSearch](inputValue); // Call the provided function passing input value
-        } else {
-            console.error('Invalid handleSearch function provided');
+      // Listen for keydown event on input field
+      input.addEventListener("keydown", (event) => {
+        // Check if the key pressed is Enter key
+        if (event.keyCode === 13) {
+          this.handleSearch(input.value, userInput.handleSearch);
         }
-    });
-    
-
-      // submitButton.addEventListener('click', () => {
-      //   if (userInput.handleSearch) {
-      //     this.dispatchEvent(new CustomEvent('handleSearch', { detail: input.value }));
-      //   }
-      // });
+      });
+    } else {
+      // Hide the search input div
+      searchInputDiv.style.display = "none";
     }
+
+    // document.addEventListener("search", (event) => {
+    //   this.handleSearch(event.detail, userInput.handleSearch);
+    // });
+  }
+
+  // Function to handle search
+  handleSearch(inputValue, handleSearchFunction) {
+    const searchEvent = new CustomEvent("search", { detail: inputValue });
+    document.dispatchEvent(searchEvent); // Dispatch the custom event
+    if (
+      handleSearchFunction &&
+      window[handleSearchFunction] &&
+      typeof window[handleSearchFunction] === "function"
+    ) {
+      window[handleSearchFunction](inputValue); // Call the provided function passing input value
+    }
+  }
 }
 
-}
+window.customElements.define("nine-toolbar", Navbar);
 
-window.customElements.define('nine-toolbar', Navbar);
+
+
+
+
+// connectedCallback() {
+//   const userInput = {
+//     title: this.getAttribute("title"),
+//     showSearchBar: this.getAttribute("showSearchBar"),
+//     searchPlaceholder: this.getAttribute("searchPlaceholder"),
+//     handleSearch: this.getAttribute("handle-search"),
+//   };
+
+//   const brandSlot = this.shadowRoot.querySelector(".logo");
+//   const titleTextNode = document.createTextNode(userInput.title);
+//   brandSlot.appendChild(titleTextNode);
+
+//   const searchInputDiv = this.shadowRoot.querySelector(".searchInput");
+//   if (userInput.showSearchBar === "true") {
+//     const input = this.shadowRoot.querySelector("input");
+//     input.setAttribute(
+//       "placeholder",
+//       userInput.searchPlaceholder || "Default Placeholder"
+//     );
+//     const submitButton = this.shadowRoot.querySelector("button");
+
+//     const dispatchSearchEvent = () => {
+//         const searchEvent = new CustomEvent("search", { detail: input.value });
+//         this.shadowRoot.dispatchEvent(searchEvent);
+//     };
+
+//     submitButton.addEventListener("click", dispatchSearchEvent);
+
+//     // Listen for keydown event on input field
+//     input.addEventListener("keydown", (event) => {
+//         // Check if the key pressed is Enter key
+//         if (event.keyCode === 13) {
+//             dispatchSearchEvent();
+//         }
+//     });
+//   } else {
+//     // Hide the search input div
+//     searchInputDiv.style.display = "none";
+//   }
+
+//   this.shadowRoot.addEventListener("search", (event) => {
+//     this.handleSearch(event.detail,userInput.handleSearch)
+//     });
+// }
+
+// // Function to handle search
+// handleSearch(inputValue, handleSearchFunction) {
+//   console.log(event.detail);
+//   if (
+//     handleSearchFunction &&
+//     window[handleSearchFunction] &&
+//     typeof window[handleSearchFunction] === "function"
+//   ) {
+//     window[handleSearchFunction](inputValue); // Call the provided function passing input value
+//   }
+// }
+// }
+
+// window.customElements.define("nine-toolbar", Navbar);
