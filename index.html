@@ -11,12 +11,12 @@
 
     <script src="reusableToolbar_minified.js"></script>
     <script>
-            function handleSearch(event) {
+            function handleSearch1(event) {
         console.log('result in main page: ', event.detail); // Log the input value
         document.getElementById('searchResult').innerText = event.detail;
     }
 
-        document.addEventListener('search', handleSearch);
+        document.addEventListener('search', handleSearch1);
     </script>
 </body>
 </html>
