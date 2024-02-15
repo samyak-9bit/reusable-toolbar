@@ -6,14 +6,26 @@
     <title>Document</title>
 </head>
 <body>
-    <nine-toolbar title="My Hello application" showSearchBar="true" searchPlaceholder="Enter Here..." handle-search="handleSearch(event)"></nine-toolbar>
+    <nine-toolbar title="My Hello application" showSearchBar="true" searchPlaceholder="Enter Here..." handle-search="handleSearch1(event)" showDropDownMenu="true"  dropDownTitle="MyDropDown" menuItems='{"About":"handleOption1","Profile":"handleOption2","Carrer":"handleOption3"}'></nine-toolbar>
     <h1 id="searchResult"></h1>
 
-    <script src="reusableToolbar_minified.js"></script>
+    <script src="reusableToolbar.js"></script>
     <script>
             function handleSearch1(event) {
         console.log('result in main page: ', event.detail); // Log the input value
         document.getElementById('searchResult').innerText = event.detail;
+    }
+
+    function handleOption1(){
+        console.log("Option1 Clicked!");
+    }
+
+    function handleOption2(){
+        console.log("Option2 Clicked!");
+    }
+
+    function handleOption3(){
+        console.log("Option3 Clicked!");
     }
 
         document.addEventListener('search', handleSearch1);
